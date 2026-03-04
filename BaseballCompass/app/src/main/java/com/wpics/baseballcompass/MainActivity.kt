@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
 
     /** Initialization of the ViewModel using the Manual DI container. */
     private val viewModel: BaseballCompassViewModel by viewModels {
-        ViewModelFactory((application as BaseballCompassApp).container.api)
+        val container = (application as BaseballCompassApp).container
+        ViewModelFactory(api = container.api, venueDAO = container.venueDao)
     }
 
     /** Launcher to handle location permission requests. */

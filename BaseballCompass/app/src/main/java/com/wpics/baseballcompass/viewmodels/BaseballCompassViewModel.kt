@@ -4,15 +4,16 @@ import android.util.Log
 import com.wpics.baseballcompass.data.MLBAPI
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wpics.baseballcompass.data.StoredVenueIDs
+import com.wpics.baseballcompass.data.VenueDAO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class BaseballCompassViewModel(private val api: MLBAPI) : ViewModel() {
+class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: VenueDAO) : ViewModel() {
 
     /** Internal mutable state flow for the UI state. */
     private val _state = MutableStateFlow<BaseballCompassUIState>(BaseballCompassUIState.Loading)
@@ -39,10 +40,31 @@ class BaseballCompassViewModel(private val api: MLBAPI) : ViewModel() {
     fun fetchData() {
         viewModelScope.launch {
             try {
-                val scheduleResponse = api.getSchedule(1, 2026, 'S', "2026-02-25")
-                for (date in scheduleResponse.dates!!) {
-                    for (games in date.games) {
-                        Log.d("BaseballCompassApp", "Venue name is ${games.venue?.name} and venue ID is ${games.venue?.id}")
+                val date = getTodayDate()
+                val scheduleResponse = api.getSchedule(1, 2026, 'S', date)
+                if (scheduleResponse.dates != null) {
+                    for (date in scheduleResponse.dates) {
+                        if (date.games != null) {
+                            for (games in date.games) {
+                                Log.d("BaseballCompassApp", "Venue name is ${games.venue?.name} and venue ID is ${games.venue?.id}")
+                                if (games.venue?.id != null) {
+                                    val venueDetailsFromDB = venueDao.getVenueByID(games.venue.id)
+                                    if (venueDetailsFromDB != null) {
+                                        Log.d("BaseballCompasApp", "Venue details are saved in database and they are: ${venueDetailsFromDB.name} and ${venueDetailsFromDB.id} and ${venueDetailsFromDB.latitude} and ${venueDetailsFromDB.longitude}")
+                                    }
+                                    else {
+                                        val venueResponse = api.getVenueDetails(games.venue.id)
+                                        if (venueResponse.venues != null) {
+                                            for (venue in venueResponse.venues) {
+                                                Log.d("BaseballCompassApp", "Venue latitude is ${venue.location?.defaultCoordinates?.latitude} and longitude is ${venue.location?.defaultCoordinates?.longitude}")
+                                                val venueData = StoredVenueIDs(games.venue.id, games.venue.name ?: "Blank", venue.location?.defaultCoordinates?.latitude ?: 0.0, venue.location?.defaultCoordinates?.longitude ?: 0.0)
+                                                venueDao.insertVenue(venueData)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -61,5 +83,12 @@ class BaseballCompassViewModel(private val api: MLBAPI) : ViewModel() {
      */
     fun setRefreshing(value: Boolean) {
         _isRefreshing.value = value
+    }
+
+    fun getTodayDate() : String {
+        val now = ZonedDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val format = now.format(formatter)
+        return format
     }
 }
