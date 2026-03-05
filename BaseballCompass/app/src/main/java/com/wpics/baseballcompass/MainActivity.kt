@@ -32,6 +32,12 @@ import com.wpics.baseballcompass.ui.theme.BaseballCompassTheme
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
 import com.wpics.baseballcompass.viewmodels.ViewModelFactory
 
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+
 class MainActivity : ComponentActivity() {
 
     /** Initialization of the ViewModel using the Manual DI container. */
@@ -49,11 +55,37 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    private lateinit var sensorManager: SensorManager
+    private var rotation: Sensor? = null
+
+    private val rotationMatrix = FloatArray(9)
+    private val orientation = FloatArray(3)
+
+    private val compass = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+            SensorManager.getOrientation(rotationMatrix, orientation)
+
+            val compassHeading = (Math.toDegrees(orientation[0].toDouble()).toFloat() +360f) % 360f
+
+            viewModel.updateHeading(compassHeading)
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         requestPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        rotation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
         setContent {
             var darkMode by rememberSaveable {mutableStateOf(false)}
@@ -71,11 +103,26 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    override fun onResume(){
+        super.onResume()
+        rotation?.let{
+            sensorManager.registerListener(compass, it, SensorManager.SENSOR_DELAY_UI)
+        }
+    }
+
+    override fun onPause(){
+        super.onPause()
+        sensorManager.unregisterListener(compass)
+    }
+
     /**
      * Utilizes FusedLocationProvider to get coordinates and trigger the ViewModel.
      */
     private fun getLocationAndFetch() {
         val fusedClient = LocationServices.getFusedLocationProviderClient(this)
+
+
 
         // Define a Priority for high accuracy
         val priority = com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY

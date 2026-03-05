@@ -94,11 +94,11 @@ fun AppTitle(){
 fun DisplayVenues (modifier: Modifier, state: BaseballCompassUIState.Success, boxModifier: Modifier){
     Column(modifier = modifier){
         for (date in state.current.dates!!) {
-            Text(date.date,
+            Text("${date.date!!} ${state.heading}",
                 color = MaterialTheme.colorScheme.onBackground)
             Box(modifier = boxModifier){
                 Column() {
-                    for (games in date.games) {
+                    for (games in date.games!!) {
 
                         Text(
                             text = "${games.venue?.name}",

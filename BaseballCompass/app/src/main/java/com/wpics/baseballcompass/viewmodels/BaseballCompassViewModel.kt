@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wpics.baseballcompass.data.StoredVenueIDs
 import com.wpics.baseballcompass.data.VenueDAO
+import com.wpics.baseballcompass.models.VenueResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,10 +38,14 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
     /** Cache coordinates to allow re-fetching when units change **/
     private var lastLat: Double? = null
     private var lastLon: Double? = null
+
+    private val _heading = MutableStateFlow(0f)
+    val heading: StateFlow<Float> = _heading
     fun fetchData() {
         viewModelScope.launch {
             try {
                 val date = getTodayDate()
+                val venueResponse = VenueResponse(null)
                 val scheduleResponse = api.getSchedule(1, 2026, 'S', date)
                 if (scheduleResponse.dates != null) {
                     for (date in scheduleResponse.dates) {
@@ -68,7 +73,7 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
                     }
                 }
 
-                _state.value = BaseballCompassUIState.Success(current = scheduleResponse)
+                _state.value = BaseballCompassUIState.Success(current = scheduleResponse, venueResponse, heading = heading.value)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -78,6 +83,24 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
             }
         }
     }
+
+
+    fun updateHeading(heading: Float){
+
+        val state = _state.value
+        if(state is BaseballCompassUIState.Success){
+
+            val prev = state.heading
+            val change = Math.abs(((heading - prev + 540f) %360f) - 180f)
+
+            if(change >= 5f) {
+                _state.value = state.copy(heading = heading)
+                Log.d("BaseballCompassApp", "New heading $heading")
+            }
+        }
+
+    }
+
 
     /**
      * Sets the refreshing state for the Pull-to-Refresh UI component.
