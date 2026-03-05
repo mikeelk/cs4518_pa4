@@ -45,6 +45,9 @@ class BaseballCompassViewModel(private val api: MLBAPI) : ViewModel() {
                         Log.d("BaseballCompassApp", "Venue name is ${games.venue?.name} and venue ID is ${games.venue?.id}")
                     }
                 }
+
+                _state.value = BaseballCompassUIState.Success(current = scheduleResponse)
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 _state.value = BaseballCompassUIState.Error(msg = e.localizedMessage ?: "Check your internet connection")

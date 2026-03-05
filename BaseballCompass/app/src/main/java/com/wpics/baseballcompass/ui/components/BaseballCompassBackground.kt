@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
  */
 @Composable
 fun BaseballCompassBackground(content: @Composable () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
+    Box(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
         content()
     }
 }

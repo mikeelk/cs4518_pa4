@@ -21,8 +21,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.google.android.gms.location.LocationServices
 import com.wpics.baseballcompass.ui.BaseballCompassScreen
+import com.wpics.baseballcompass.ui.MainScreen
 import com.wpics.baseballcompass.ui.theme.BaseballCompassTheme
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
 import com.wpics.baseballcompass.viewmodels.ViewModelFactory
@@ -50,15 +55,15 @@ class MainActivity : ComponentActivity() {
         requestPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
 
         setContent {
-            BaseballCompassTheme {
-                Surface(color= MaterialTheme.colorScheme.background) {
-                    BaseballCompassScreen(
-                        viewModel = viewModel,
-                        onRefresh = {
-                            viewModel.setRefreshing(true)
-                            getLocationAndFetch()
+            var darkMode by rememberSaveable {mutableStateOf(false)}
 
-                        }
+            BaseballCompassTheme (darkTheme = darkMode, dynamicColor = false) {
+                Surface(color= MaterialTheme.colorScheme.background) {
+                    MainScreen(
+                        locViewModel = viewModel,
+                        onRefresh = {getLocationAndFetch()},
+                        darkMode = darkMode,
+                        onModeChange = {darkMode = it}
                     )
                 }
             }
