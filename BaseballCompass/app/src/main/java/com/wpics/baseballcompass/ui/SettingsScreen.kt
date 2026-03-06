@@ -22,9 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.wpics.baseballcompass.ui.components.BaseballCompassBackground
+import com.wpics.baseballcompass.util.Notifications
 import com.wpics.baseballcompass.viewmodels.BaseballCompassUIState
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
+import com.wpics.baseballcompass.workers.VenueWorker
 import com.wpics.baseballcompass.workers.WorkScheduler
 
 
@@ -32,6 +35,7 @@ import com.wpics.baseballcompass.workers.WorkScheduler
  * Composable for Settings Screen
  */
 @Composable
+@androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
 fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, notifEnabled: Boolean, viewModel : BaseballCompassViewModel, onRefresh: () -> Unit){
     val uiState by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
@@ -70,6 +74,8 @@ fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, notifEnab
                             DarkModeToggle(modifier = Modifier.padding(16.dp), darkMode = darkMode, onModeChange = onModeChange)
 
                             NotificationsToggle(modifier = Modifier.padding(16.dp), notifEnabled)
+
+                            NotifTestButton(modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp))
                         }
 
                     }
@@ -113,6 +119,23 @@ fun NotificationsToggle(modifier: Modifier, enabled: Boolean){
             WorkManager.getInstance(context).cancelUniqueWork("venue-refresh")
         }})
 
+    }
+}
+
+
+@Composable
+@androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+fun NotifTestButton(modifier: Modifier){
+    val context = LocalContext.current
+    Button(
+        modifier = modifier,
+        onClick =  { Notifications.ensure(context)
+                     Notifications.show(context, "Test Notif", "Welcome to BaseballCompass!")},
+    ){
+        Text(text = "Notif Test",
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 20.sp,
+            fontFamily = FontFamily.Monospace,)
     }
 }
 
