@@ -24,7 +24,7 @@ sealed class NavigationItem(val route: String, val title: String, val icon: Imag
     object Settings : NavigationItem("settings", "Settings", Icons.Default.Settings)
 
     /**
-     * Detail route for breweries.
+     * Detail route for app
      * Note: This isn't in the bottom bar, but still needs a route definition.
      */
     object Detail : NavigationItem("detail/{breweryId}", "Details", Icons.Default.Search) {

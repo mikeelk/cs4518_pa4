@@ -27,7 +27,7 @@ class AppContainer(context: Context) {
         database.venueDao()
     }
 
-    /** The implementation of the WeatherAPI. */
+    /** The implementation of the MLBAPI. */
     val api: MLBAPI by lazy {
         Retrofit.Builder()
             .baseUrl(baseUrl)

@@ -27,12 +27,6 @@ import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
 
 
 
-/**
- * Primary Composable for the weather UI.
- *
- * @param viewModel A [WeatherViewModel] instance
- * @param onRefresh A callback function for handling refresh
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseballCompassScreen(viewModel: BaseballCompassViewModel, onRefresh: () -> Unit) {

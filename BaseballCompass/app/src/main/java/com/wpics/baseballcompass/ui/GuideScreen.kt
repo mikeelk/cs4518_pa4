@@ -94,27 +94,6 @@ fun GuideDetails() {
         item {Text(text = "In addition we use WorkManager to schedule background tasks for occasional notifications informing user of how close they are to the nearest stadium with a game")}
         item {Text(text = "Lastly, we use RoomDatabase to store stadium details such as its latitude and longitude so those don't have to be re-queried every time the app runs")}
     }
-    /*
-    val scrollState = rememberScrollState()
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "This app uses Retrofit 2 to query the MLB API to get the schedule of games for today and get the venue details of those games")
-        AsyncImage(model = "https://codingwithmitch.s3.amazonaws.com/static/blog/f099482c-28a2-11e9-b183-2aabe8ede8eb/retrofit2_getting_started.png", contentDescription = "Retrofit2 logo")
-        Text(text = "Also this app uses Fused Location Provider from Google to get the user's location to determine the distance from baseball stadiums")
-        Text(text = "We use a combination of the accelerometer and gyroscope to get the phone's heading so when it updates we can update the heading to the nearest stadium")
-        AsyncImage(model = "https://cdn-icons-png.flaticon.com/512/4336/4336206.png", contentDescription = "A compass icon")
-        Text(text = "In addition we use WorkManager to schedule background tasks for occasional notifications informing user of how close they are to the nearest stadium with a game")
-        Text(text = "Lastly, we use RoomDatabase to store stadium details such as its latitude and longitude so those don't have to be re-queried every time the app runs")
-    }*/
-
-    //Text(text = "This app uses Retrofit 2 to query the MLB API to get the schedule of games for today and get the venue details of those games")
-    //AsyncImage(model = "https://codingwithmitch.s3.amazonaws.com/static/blog/f099482c-28a2-11e9-b183-2aabe8ede8eb/retrofit2_getting_started.png", contentDescription = "Retrofit2 logo")
-    //Text(text = "Also this app uses Fused Location Provider from Google to get the user's location to determine the distance from baseball stadiums")
-    //Text(text = "We use a combination of the accelerometer and gyroscope to get the phone's heading so when it updates we can update the heading to the nearest stadium")
-    //AsyncImage(model = "https://cdn-icons-png.flaticon.com/512/4336/4336206.png", contentDescription = "A compass icon")
-    //Text(text = "In addition we use WorkManager to schedule background tasks for occasional notifications informing user of how close they are to the nearest stadium with a game")
-    //Text(text = "Lastly, we use RoomDatabase to store stadium details such as its latitude and longitude so those don't have to be re-queried every time the app runs")
 }
 
 @Preview(showBackground = true)
