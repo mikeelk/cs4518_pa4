@@ -2,6 +2,7 @@ package com.wpics.baseballcompass.ui
 
 
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 
 import androidx.compose.material3.*
@@ -90,6 +91,7 @@ fun MainScreen (locViewModel: BaseballCompassViewModel, onRefresh : () -> Unit, 
                     SettingsScreen(
                         darkMode = darkMode,
                         onModeChange = onModeChange,
+                        notifEnabled = true,
                         locViewModel,
                         { locViewModel.setRefreshing(true) })
                 }

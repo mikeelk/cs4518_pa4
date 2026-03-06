@@ -94,8 +94,21 @@ fun AppTitle(){
 fun DisplayVenues (modifier: Modifier, state: BaseballCompassUIState.Success, boxModifier: Modifier){
     Column(modifier = modifier){
         for (date in state.current.dates!!) {
-            Text("${date.date!!} ${state.heading}",
-                color = MaterialTheme.colorScheme.onBackground)
+            Text("Date: ${date.date!!}",
+                color = MaterialTheme.colorScheme.onBackground,
+                fontFamily = FontFamily.Monospace)
+
+            Row(){
+                Text("Heading: ",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = FontFamily.Monospace)
+
+                Text(
+                    headingToDirection(state.heading),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold)
+            }
             Box(modifier = boxModifier){
                 Column() {
                     for (games in date.games!!) {
@@ -106,11 +119,30 @@ fun DisplayVenues (modifier: Modifier, state: BaseballCompassUIState.Success, bo
                             fontFamily = FontFamily.Monospace
                         )
 
+                        Text(
+                            text = "\t\t\t${games.venue?.distance} mi",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontFamily = FontFamily.Monospace
+                        )
+
                     }
                 }
             }
         }
     }
+}
+
+fun headingToDirection(heading: Float) : String{
+    when(heading){
+        in 0f..22.5f, in 337.5f..360f -> return "N"
+        in 22.5f .. 67.5f -> return "NE"
+        in 67.5f .. 112.5f -> return "E"
+        in 112.5f .. 157.5f -> return "SE"
+        in 157.5f .. 202.5f -> return "S"
+        in 202.5f .. 247.5f -> return "SW"
+        in 247.5f .. 292.5f -> return "W"
+    }
+    return "NW"
 }
 
 

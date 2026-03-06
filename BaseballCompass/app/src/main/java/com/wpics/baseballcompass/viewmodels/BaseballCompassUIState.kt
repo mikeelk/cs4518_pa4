@@ -8,7 +8,6 @@ sealed interface BaseballCompassUIState {
 
     data class Success(
         val current : ScheduleResponse,
-        val venues : VenueResponse,
         val heading: Float
 
     ) : BaseballCompassUIState

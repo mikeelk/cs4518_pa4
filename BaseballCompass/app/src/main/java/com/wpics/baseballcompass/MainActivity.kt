@@ -33,10 +33,14 @@ import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
 import com.wpics.baseballcompass.viewmodels.ViewModelFactory
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import androidx.activity.result.ActivityResult
+import com.wpics.baseballcompass.workers.WorkScheduler
+import kotlin.apply
 
 class MainActivity : ComponentActivity() {
 
@@ -52,6 +56,10 @@ class MainActivity : ComponentActivity() {
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
             getLocationAndFetch()
+        }
+
+        if(permissions[Manifest.permission.POST_NOTIFICATIONS] == true){
+            Log.d("BaseballComPass", "Notification Permission Granted")
         }
     }
 
@@ -82,10 +90,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        requestPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
+        requestPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.POST_NOTIFICATIONS))
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         rotation = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+
+
+        WorkScheduler.scheduleVenueRecommendation(this)
+        Log.d("BaseballCompassNotification", "Notification Scheduled")
 
         setContent {
             var darkMode by rememberSaveable {mutableStateOf(false)}
@@ -134,11 +146,14 @@ class MainActivity : ComponentActivity() {
             fusedClient.getCurrentLocation(priority, cts.token).addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     Log.d("BaseballCompassApp", "Fetched Location: ${location.latitude}, ${location.longitude}")
-                    viewModel.fetchData()
+                    viewModel.fetchData(location.latitude, location.longitude)
+                    saveLastLocation(location.latitude, location.longitude)
                 } else {
                     // Handle case where GPS is off
                     Log.e("BaseballCompassApp", "Location is null. GPS may be disabled.")
                     viewModel.setRefreshing(false)
+
+
                 }
             }.addOnFailureListener { e ->
                 Log.e("BaseballCompassApp", "Location fetch failed: ${e.message}")
@@ -148,6 +163,12 @@ class MainActivity : ComponentActivity() {
             Log.e("BaseballCompassApp", "Permission error: ${e.message}")
             viewModel.setRefreshing(false)
         }
+    }
+
+
+    private fun saveLastLocation(lat: Double, lon: Double){
+        getSharedPreferences("prefs", MODE_PRIVATE).edit().putLong("last_lat", java.lang.Double.doubleToRawLongBits(lat))
+            .putLong("last_lon", java.lang.Double.doubleToRawLongBits(lon)).apply()
     }
 }
 
@@ -166,3 +187,5 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+

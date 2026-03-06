@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wpics.baseballcompass.data.StoredVenueIDs
 import com.wpics.baseballcompass.data.VenueDAO
+import com.wpics.baseballcompass.models.Coordinate
 import com.wpics.baseballcompass.models.VenueResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.*
+import kotlin.collections.*
 
 class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: VenueDAO) : ViewModel() {
 
@@ -41,12 +44,14 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
 
     private val _heading = MutableStateFlow(0f)
     val heading: StateFlow<Float> = _heading
-    fun fetchData() {
+    fun fetchData(lat: Double, lon: Double) {
+        lastLat = lat
+        lastLon = lon
         viewModelScope.launch {
             try {
                 val date = getTodayDate()
                 val venueResponse = VenueResponse(null)
-                val scheduleResponse = api.getSchedule(1, 2026, 'S', date)
+                var scheduleResponse = api.getSchedule(1, 2026, 'S', date)
                 if (scheduleResponse.dates != null) {
                     for (date in scheduleResponse.dates) {
                         if (date.games != null) {
@@ -56,11 +61,17 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
                                     val venueDetailsFromDB = venueDao.getVenueByID(games.venue.id)
                                     if (venueDetailsFromDB != null) {
                                         Log.d("BaseballCompasApp", "Venue details are saved in database and they are: ${venueDetailsFromDB.name} and ${venueDetailsFromDB.id} and ${venueDetailsFromDB.latitude} and ${venueDetailsFromDB.longitude}")
+
+                                        games.venue.coordinates = Coordinate(venueDetailsFromDB.latitude, venueDetailsFromDB.longitude)
+                                        games.venue.distance = haversine_distance(lastLat!!, lastLon!!, venueDetailsFromDB.latitude, venueDetailsFromDB.longitude).roundToInt()
                                     }
                                     else {
                                         val venueResponse = api.getVenueDetails(games.venue.id)
                                         if (venueResponse.venues != null) {
                                             for (venue in venueResponse.venues) {
+                                                games.venue.coordinates = Coordinate(venue.location?.defaultCoordinates?.latitude,
+                                                                                    venue.location?.defaultCoordinates?.longitude)
+                                                games.venue.distance = haversine_distance(lastLat!!, lastLon!!, venue.location?.defaultCoordinates?.latitude!!, venue.location?.defaultCoordinates?.longitude!!).roundToInt()
                                                 Log.d("BaseballCompassApp", "Venue latitude is ${venue.location?.defaultCoordinates?.latitude} and longitude is ${venue.location?.defaultCoordinates?.longitude}")
                                                 val venueData = StoredVenueIDs(games.venue.id, games.venue.name ?: "Blank", venue.location?.defaultCoordinates?.latitude ?: 0.0, venue.location?.defaultCoordinates?.longitude ?: 0.0)
                                                 venueDao.insertVenue(venueData)
@@ -70,10 +81,12 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
                                 }
                             }
                         }
+                        date.games = date.games?.sortedBy{it.venue?.distance}
                     }
                 }
 
-                _state.value = BaseballCompassUIState.Success(current = scheduleResponse, venueResponse, heading = heading.value)
+
+                _state.value = BaseballCompassUIState.Success(current = scheduleResponse, heading = heading.value)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -116,5 +129,21 @@ class BaseballCompassViewModel(private val api: MLBAPI, private val venueDao: Ve
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val format = now.format(formatter)
         return format
+    }
+
+    private fun haversine_distance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double{
+
+        val radius_miles = 3959
+
+        val delta_lat = Math.toRadians(lat2-lat1)
+        val delta_lon = Math.toRadians(lon2-lon1)
+
+        val a = Math.sin(delta_lat / 2).pow(2) + cos(Math.toRadians(lat1))*cos(Math.toRadians(lat2))*sin(delta_lon / 2).pow(2)
+
+        val c = 2 * Math.atan2(sqrt(a), sqrt(1-a))
+
+        val dist = c * radius_miles
+
+        return dist
     }
 }

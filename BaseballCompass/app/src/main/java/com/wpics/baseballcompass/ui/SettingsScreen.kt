@@ -1,5 +1,6 @@
 package com.wpics.baseballcompass.ui
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,21 +15,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.WorkManager
 import com.wpics.baseballcompass.ui.components.BaseballCompassBackground
 import com.wpics.baseballcompass.viewmodels.BaseballCompassUIState
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
+import com.wpics.baseballcompass.workers.WorkScheduler
 
 
 /**
  * Composable for Settings Screen
  */
 @Composable
-fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, viewModel : BaseballCompassViewModel, onRefresh: () -> Unit){
+fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, notifEnabled: Boolean, viewModel : BaseballCompassViewModel, onRefresh: () -> Unit){
     val uiState by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val lastUpdated by viewModel.lastUpdated.collectAsState()
@@ -64,6 +68,8 @@ fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, viewModel
                             SettingsTitle()
 
                             DarkModeToggle(modifier = Modifier.padding(16.dp), darkMode = darkMode, onModeChange = onModeChange)
+
+                            NotificationsToggle(modifier = Modifier.padding(16.dp), notifEnabled)
                         }
 
                     }
@@ -90,6 +96,23 @@ fun DarkModeToggle(modifier: Modifier, darkMode : Boolean, onModeChange : (Boole
         Text(text = "Dark Mode",
             modifier = Modifier.weight(1f))
             Switch(checked = darkMode, onCheckedChange = onModeChange)
+    }
+}
+
+
+@Composable
+fun NotificationsToggle(modifier: Modifier, enabled: Boolean){
+
+    val context = LocalContext.current
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically){
+        Text(text = "Notifications On/Off",
+            modifier = Modifier.weight(1f))
+        Switch(checked =  enabled, {if (enabled){
+            WorkScheduler.scheduleVenueRecommendation(context)
+        } else{
+            WorkManager.getInstance(context).cancelUniqueWork("venue-refresh")
+        }})
+
     }
 }
 
