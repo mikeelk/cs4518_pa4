@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -68,14 +69,14 @@ fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, notifEnab
                     }
 
                     is BaseballCompassUIState.Success -> {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally){
-                            SettingsTitle()
+                        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally){
+                            item{SettingsTitle()}
 
-                            DarkModeToggle(modifier = Modifier.padding(16.dp), darkMode = darkMode, onModeChange = onModeChange)
+                            item{DarkModeToggle(modifier = Modifier.padding(16.dp), darkMode = darkMode, onModeChange = onModeChange)}
 
-                            NotificationsToggle(modifier = Modifier.padding(16.dp), notifEnabled)
+                            item{NotificationsToggle(modifier = Modifier.padding(16.dp), notifEnabled)}
 
-                            NotifTestButton(modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp))
+                            item{NotifTestButton(modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp))}
                         }
 
                     }
