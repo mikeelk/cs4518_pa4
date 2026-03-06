@@ -8,7 +8,7 @@ object WorkScheduler{
 
     fun scheduleVenueRecommendation(context: Context){
 
-        val request = PeriodicWorkRequestBuilder<VenueWorker>(1, TimeUnit.MINUTES)
+        val request = PeriodicWorkRequestBuilder<VenueWorker>(15, TimeUnit.MINUTES)
             .setInputData(workDataOf())
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()).build()
 

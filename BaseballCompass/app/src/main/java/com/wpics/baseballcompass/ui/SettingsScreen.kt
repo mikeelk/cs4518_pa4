@@ -22,9 +22,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.wpics.baseballcompass.data.VenueRepository
 import com.wpics.baseballcompass.ui.components.BaseballCompassBackground
+import com.wpics.baseballcompass.ui.theme.salmon
+import com.wpics.baseballcompass.ui.theme.titleFontFamily
 import com.wpics.baseballcompass.util.Notifications
 import com.wpics.baseballcompass.viewmodels.BaseballCompassUIState
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
@@ -89,10 +93,10 @@ fun SettingsScreen(darkMode: Boolean, onModeChange: (Boolean) -> Unit, notifEnab
 @Composable
 fun SettingsTitle(){
     Text(text = "Settings",
-        color = MaterialTheme.colorScheme.onBackground,
-        fontSize = 30.sp,
+        color = salmon,
+        fontSize = 50.sp,
         fontWeight = FontWeight.Bold,
-        fontFamily = FontFamily.Monospace,
+        fontFamily = titleFontFamily,
         )
 }
 
@@ -130,13 +134,19 @@ fun NotifTestButton(modifier: Modifier){
     val context = LocalContext.current
     Button(
         modifier = modifier,
-        onClick =  { Notifications.ensure(context)
-                     Notifications.show(context, "Test Notif", "Welcome to BaseballCompass!")},
+        onClick =  {
+            triggerWorkImmediately(context)
+        },
     ){
         Text(text = "Notif Test",
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 20.sp,
             fontFamily = FontFamily.Monospace,)
     }
+}
+
+fun triggerWorkImmediately(context: Context) {
+    val immediateWorkRequest = OneTimeWorkRequestBuilder<VenueWorker>().build()
+    WorkManager.getInstance(context).enqueue(immediateWorkRequest)
 }
 

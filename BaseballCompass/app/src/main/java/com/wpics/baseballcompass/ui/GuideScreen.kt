@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.wpics.baseballcompass.ui.components.BaseballCompassBackground
+import com.wpics.baseballcompass.ui.theme.salmon
+import com.wpics.baseballcompass.ui.theme.titleFontFamily
 import com.wpics.baseballcompass.viewmodels.BaseballCompassUIState
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
 
@@ -73,10 +75,11 @@ fun GuideScreen(viewModel : BaseballCompassViewModel, onRefresh: () -> Unit){
 @Composable
 fun GuideTitle(){
     Text(text = "App Guide",
-        fontSize = 30.sp,
-        color = MaterialTheme.colorScheme.onBackground,
+        fontSize = 50.sp,
+        color = salmon,
         fontWeight = FontWeight.Bold,
-        fontFamily = FontFamily.Monospace)
+        fontFamily = titleFontFamily
+    )
 }
 
 @Composable

@@ -96,4 +96,6 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
+
 }

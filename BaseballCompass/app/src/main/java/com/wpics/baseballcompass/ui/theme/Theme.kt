@@ -1,6 +1,5 @@
 package com.wpics.baseballcompass.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -16,9 +15,13 @@ private val DarkColorScheme = darkColorScheme(
     background = Color.Black,
     onBackground = Color.White,
     surface = Color.DarkGray,
-    onSurface = Color.White
+    onSurface = Color.White,
+    primary = salmon,
+    secondary = darkBlue,
+    secondaryContainer = salmon.copy(alpha=0.3f),
+    onSecondaryContainer = Color.White
 )
-
+/*
 private val LightColorScheme = lightColorScheme(
     background = Color.White,
     onBackground = Color.Black,
@@ -34,6 +37,11 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Color(0xFF1C1B1F),
     onSurface = Color(0xFF1C1B1F),
     */
+)*/
+private val LightColorScheme = lightColorScheme(
+    primary = salmon,
+    secondary = darkBlue,
+    background = Color.White
 )
 
 @Composable

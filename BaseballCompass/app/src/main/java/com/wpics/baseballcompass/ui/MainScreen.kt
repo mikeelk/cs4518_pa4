@@ -49,7 +49,7 @@ fun MainScreen (locViewModel: BaseballCompassViewModel, onRefresh : () -> Unit, 
                 items.forEach { item ->
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = {Text(item.title)},
+                        label = {Text(text = item.title, color = MaterialTheme.colorScheme.onSecondaryContainer )},
                         selected = currentDestination?.hierarchy?.any {it.route == item.route} == true,
                         onClick = {
                             navController.navigate(item.route){

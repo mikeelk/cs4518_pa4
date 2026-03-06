@@ -20,6 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wpics.baseballcompass.ui.components.BaseballCompassBackground
+import com.wpics.baseballcompass.ui.theme.salmon
+import com.wpics.baseballcompass.ui.theme.titleFontFamily
 import com.wpics.baseballcompass.viewmodels.BaseballCompassUIState
 import com.wpics.baseballcompass.viewmodels.BaseballCompassViewModel
 
@@ -83,30 +85,31 @@ fun BaseballCompassScreen(viewModel: BaseballCompassViewModel, onRefresh: () -> 
 @Composable
 fun AppTitle(){
     Text(text  = "Baseball Compass",
-        color = MaterialTheme.colorScheme.onBackground,
-        fontSize = 25.sp,
+        color = salmon,
+        fontSize = 50.sp,
         fontWeight = FontWeight.Bold,
-        fontFamily = FontFamily.Monospace)
-
+        fontFamily = titleFontFamily)
 }
 
 @Composable
 fun DisplayVenues (modifier: Modifier, state: BaseballCompassUIState.Success, boxModifier: Modifier){
     Column(modifier = modifier){
         for (date in state.current.dates!!) {
-            Text("Date: ${date.date!!}",
-                color = MaterialTheme.colorScheme.onBackground,
-                fontFamily = FontFamily.Monospace)
-
+            Row() {
+                Text("Date: ",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 20.sp)
+                Text(text = date.date!!, color = MaterialTheme.colorScheme.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            }
             Row(){
                 Text("Heading: ",
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontFamily = FontFamily.Monospace)
+                    fontSize = 20.sp)
 
                 Text(
                     headingToDirection(state.heading),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontFamily = FontFamily.Monospace,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold)
             }
             Box(modifier = boxModifier){
@@ -116,13 +119,15 @@ fun DisplayVenues (modifier: Modifier, state: BaseballCompassUIState.Success, bo
                         Text(
                             text = "${games.venue?.name}",
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = FontFamily.Monospace
+                            fontFamily = titleFontFamily,
+                            fontSize = 24.sp
                         )
 
                         Text(
                             text = "\t\t\t${games.venue?.distance} mi",
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = FontFamily.Monospace
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 24.sp
                         )
 
                     }
